@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
 
 const crateSlot = "create_parking_lot"
 const parkCar = "park"
@@ -11,23 +16,32 @@ const slotNumsForColor = "slot_numbers_for_cars_with_colour"
 const slotNumForRegNum = "slot_number_for_registration_number"
 
 func main() {
-	switch input := "input"; input {
-	case crateSlot:
-		fmt.Println(input)
-	case parkCar:
-		fmt.Println(input)
-	case leaveSlot:
-		fmt.Println(input)
-	case status:
-		fmt.Println(input)
-	case regNumsForColor:
-		fmt.Println(input)
-	case slotNumsForColor:
-		fmt.Println(input)
-	case slotNumForRegNum:
-		fmt.Println(input)
-	default:
-		fmt.Println(input)
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		cmd := strings.Split(scanner.Text(), " ")
+		switch cmd[0] {
+		case crateSlot:
+			slotNums := cmd[1]
+			fmt.Println(slotNums)
+		case parkCar:
+			regNum := cmd[1]
+			color := cmd[2]
+			fmt.Println(regNum, color)
+		case leaveSlot:
+			slotNum := cmd[1]
+			fmt.Println(slotNum)
+		case status:
+			fmt.Println(cmd[0])
+		case regNumsForColor:
+			color := cmd[1]
+			fmt.Println(color)
+		case slotNumsForColor:
+			color := cmd[1]
+			fmt.Println(color)
+		case slotNumForRegNum:
+			regNum := cmd[1]
+			fmt.Println(regNum)
+		}
 	}
 
 }
