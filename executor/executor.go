@@ -1,6 +1,7 @@
 package executor
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -21,20 +22,27 @@ func ExecCmd(cmd []string) {
 	case park:
 		regNum := cmd[1]
 		color := cmd[2]
-		ParkCar(regNum, color)
+		if res := ParkCar(regNum, color); res != "" {
+			fmt.Println(res)
+		}
 	case leaveSlot:
 		slotNum, _ := strconv.Atoi(cmd[1])
-		LeaveParking(slotNum)
+		if res := LeaveParking(slotNum); res != "" {
+			fmt.Println(res)
+		}
 	case status:
-		PrintStatus()
+		fmt.Println("Slot\tRegistration Number\tColor")
+		if res := PrintStatus(); res != "" {
+			fmt.Println(res)
+		}
 	case regNumsForColor:
 		color := cmd[1]
-		FindRegNumsByColor(color)
+		fmt.Println(FindRegNumsByColor(color))
 	case slotNumsForColor:
 		color := cmd[1]
-		FindSlotNumsByColor(color)
+		fmt.Println(FindSlotNumsByColor(color))
 	case slotNumForRegNum:
 		regNum := cmd[1]
-		FindSlotNoByRegNum(regNum)
+		fmt.Println(FindSlotNoByRegNum(regNum))
 	}
 }

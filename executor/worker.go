@@ -3,6 +3,7 @@ package executor
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -18,7 +19,7 @@ func CreateParkingSlots(slotNum int) {
 }
 
 // ParkCar ...
-func ParkCar(regNum, color string) {
+func ParkCar(regNum, color string) string {
 	slotsNum := len(slots)
 	slotNo := slotsNum
 	newCar := carDetails{
@@ -28,8 +29,7 @@ func ParkCar(regNum, color string) {
 
 	for slot, detail := range slots {
 		if detail.regNum == newCar.regNum {
-			fmt.Printf("Already in slot no %d\n", slot+1)
-			return
+			return fmt.Sprintf("Already in slot no %d\n", slot+1)
 		}
 		if reflect.DeepEqual(detail, carDetails{}) {
 			slotNo = min(slot, slotNo)
@@ -37,10 +37,10 @@ func ParkCar(regNum, color string) {
 	}
 
 	if slotNo >= slotsNum {
-		fmt.Println("No slot available :(")
-		return
+		return "No slot available :("
 	}
 	slots[slotNo] = newCar
+	return ""
 }
 
 func min(a, b int) int {
@@ -51,52 +51,55 @@ func min(a, b int) int {
 }
 
 // LeaveParking ...
-func LeaveParking(slotNum int) {
+func LeaveParking(slotNum int) string {
 	if slotNum > len(slots) || slotNum < 0 {
-		fmt.Println("Invalid slot no :(")
-		return
+		return "Invalid slot no :("
 	}
 	if reflect.DeepEqual(slots[slotNum-1], carDetails{}) {
-		fmt.Printf("No vehicle found in slot %d\n", slotNum)
-		return
+		return fmt.Sprintf("No vehicle found in slot %d", slotNum)
 	}
-
 	slots[slotNum-1] = carDetails{}
+	return ""
 }
 
 // PrintStatus ...
-func PrintStatus() {
+func PrintStatus() string {
+	status := ""
 	fmt.Println("Slot\tRegistration Number\tColor")
 	for slot, details := range slots {
 		if details != (carDetails{}) {
-			fmt.Printf("%-6v\t%-20s\t%-16s\n", slot+1, details.regNum, details.color)
+			status += fmt.Sprintf("%-6v\t%-20s\t%-16s\n", slot+1, details.regNum, details.color)
 		}
 	}
+	return status
 }
 
 // FindRegNumsByColor ...
-func FindRegNumsByColor(color string) {
+func FindRegNumsByColor(color string) string {
 	for _, details := range slots {
 		if strings.EqualFold(details.color, color) {
-			fmt.Printf("%s\n", details.regNum)
+			return details.regNum
 		}
 	}
+	return "Not Found :("
 }
 
 // FindSlotNumsByColor ...
-func FindSlotNumsByColor(color string) {
+func FindSlotNumsByColor(color string) string {
 	for slot, details := range slots {
 		if strings.EqualFold(details.color, color) {
-			fmt.Printf("%d\n", slot+1)
+			return strconv.Itoa(slot + 1)
 		}
 	}
+	return "Not Found :("
 }
 
 // FindSlotNoByRegNum ...
-func FindSlotNoByRegNum(regNum string) {
+func FindSlotNoByRegNum(regNum string) string {
 	for slot, details := range slots {
 		if strings.EqualFold(details.regNum, regNum) {
-			fmt.Printf("%d\n", slot+1)
+			return strconv.Itoa(slot + 1)
 		}
 	}
+	return "Not Found :("
 }
