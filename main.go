@@ -4,34 +4,47 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
-const crateSlot = "create_parking_lot"
-const parkCar = "park"
+const createSlot = "create_parking_lot"
+const park = "park"
 const leaveSlot = "leave"
 const status = "status"
 const regNumsForColor = "registration_numbers_for_cars_with_colour"
 const slotNumsForColor = "slot_numbers_for_cars_with_colour"
 const slotNumForRegNum = "slot_number_for_registration_number"
 
+type carDetails struct {
+	regNum, color string
+}
+
+var slotNum = 0
+var slots map[int]carDetails
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		cmd := strings.Split(scanner.Text(), " ")
+		if cmd[0] == "exit" {
+			break
+		}
 		switch cmd[0] {
-		case crateSlot:
-			slotNums := cmd[1]
-			fmt.Println(slotNums)
-		case parkCar:
+		case createSlot:
+			slotNum, _ = strconv.Atoi(cmd[1])
+			if slots == nil {
+				slots = make(map[int]carDetails)
+			}
+		case park:
 			regNum := cmd[1]
 			color := cmd[2]
-			fmt.Println(regNum, color)
+			parkCar(regNum, color)
 		case leaveSlot:
-			slotNum := cmd[1]
-			fmt.Println(slotNum)
+			slotNum, _ := strconv.Atoi(cmd[1])
+			leaveParking(slotNum)
 		case status:
-			fmt.Println(cmd[0])
+			printStatus()
 		case regNumsForColor:
 			color := cmd[1]
 			fmt.Println(color)
@@ -43,5 +56,26 @@ func main() {
 			fmt.Println(regNum)
 		}
 	}
+}
 
+func parkCar(regNum, color string) {
+	slotsLen := len(slots) + 1
+	if slotsLen > slotNum {
+		return
+	}
+	slots[slotsLen] = carDetails{
+		regNum: regNum,
+		color:  color,
+	}
+}
+
+func leaveParking(slotNum int) {
+	delete(slots, slotNum)
+}
+
+func printStatus() {
+	fmt.Println("Slot\tRegistration Number\tColor")
+	for slot, carDetails := range slots {
+		fmt.Printf("%v\t%v\t%v\n", slot, carDetails.regNum, carDetails.color)
+	}
 }
