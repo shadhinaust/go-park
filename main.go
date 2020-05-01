@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -20,8 +21,7 @@ type carDetails struct {
 	regNum, color string
 }
 
-var slotNum = 0
-var slots map[int]carDetails
+var slots []carDetails
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -29,14 +29,12 @@ func main() {
 	for scanner.Scan() {
 		cmd := strings.Split(scanner.Text(), " ")
 		if cmd[0] == "exit" {
-			break
+			return
 		}
 		switch cmd[0] {
 		case createSlot:
-			slotNum, _ = strconv.Atoi(cmd[1])
-			if slots == nil {
-				slots = make(map[int]carDetails)
-			}
+			slotNum, _ := strconv.Atoi(cmd[1])
+			createParkingSlots(slotNum)
 		case park:
 			regNum := cmd[1]
 			color := cmd[2]
@@ -60,52 +58,84 @@ func main() {
 	}
 }
 
+func createParkingSlots(slotNum int) {
+	slots = make([]carDetails, slotNum)
+}
+
 func parkCar(regNum, color string) {
-	slotsLen := len(slots) + 1
-	if slotsLen > slotNum {
-		fmt.Println("No slot found!")
-		return
-	}
-	slots[slotsLen] = carDetails{
+	slotsNum := len(slots)
+	slotNo := slotsNum
+	newCar := carDetails{
 		regNum: regNum,
 		color:  color,
 	}
+
+	for slot, detail := range slots {
+		if detail.regNum == newCar.regNum {
+			fmt.Printf("Already in slot no %d\n", slot+1)
+			return
+		}
+		if reflect.DeepEqual(detail, carDetails{}) {
+			slotNo = min(slot, slotNo)
+		}
+	}
+
+	if slotNo >= slotsNum {
+		fmt.Println("No slot available :(")
+		return
+	}
+	slots[slotNo] = newCar
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func leaveParking(slotNum int) {
-	delete(slots, slotNum)
+	if slotNum > len(slots) || slotNum < 0 {
+		fmt.Println("Invalid slot no :(")
+		return
+	}
+	if reflect.DeepEqual(slots[slotNum-1], carDetails{}) {
+		fmt.Printf("No vehicle found in slot %d\n", slotNum)
+		return
+	}
+
+	slots[slotNum-1] = carDetails{}
 }
 
 func printStatus() {
 	fmt.Println("Slot\tRegistration Number\tColor")
-	for slot, carDetails := range slots {
-		fmt.Printf("%-6v\t%-20s\t%-16s\n", slot, carDetails.regNum, carDetails.color)
+	for slot, details := range slots {
+		if details != (carDetails{}) {
+			fmt.Printf("%-6v\t%-20s\t%-16s\n", slot+1, details.regNum, details.color)
+		}
 	}
 }
 
 func findRegNumsByColor(color string) {
-	for _, carDetails := range slots {
-		if strings.EqualFold(carDetails.color, color) {
-			fmt.Print(carDetails.regNum, " ")
+	for _, details := range slots {
+		if strings.EqualFold(details.color, color) {
+			fmt.Printf("%s\n", details.regNum)
 		}
 	}
-	fmt.Println()
 }
 
 func findSlotNumsByColor(color string) {
-	for slot, carDetails := range slots {
-		if strings.EqualFold(carDetails.color, color) {
-			fmt.Print(slot, " ")
+	for slot, details := range slots {
+		if strings.EqualFold(details.color, color) {
+			fmt.Printf("%d\n", slot+1)
 		}
 	}
-	fmt.Println()
 }
 
 func findSlotNoByRegNum(regNum string) {
-	for slot, carDetails := range slots {
-		if strings.EqualFold(carDetails.regNum, regNum) {
-			fmt.Print(slot, " ")
+	for slot, details := range slots {
+		if strings.EqualFold(details.regNum, regNum) {
+			fmt.Printf("%d\n", slot+1)
 		}
 	}
-	fmt.Println()
 }
